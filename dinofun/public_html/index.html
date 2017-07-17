@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>DINOFUN</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+  <script src="node_modules/d3/d3.min.js" type="text/javascript" charset="utf-8"></script>
+  <script src="node_modules/colorbrewer/colorbrewer.js" type="text/javascript" charset="utf-8"></script>
+  <script src="node_modules/colorbrewer/colorbrewer.js" type="text/javascript" charset="utf-8"></script>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  
+  <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>  <!--serve al tooltip-->
+  <!--<script src="crossfilter.min.js"></script>-->
+  
+  <script src="js\time.js"></script>
+  <script src="js\type_visualizzation.js"></script>
+  <script src="js\groups.js"></script>
+  <script src="js\ajax.js"></script>
+  <script src="js\check_in.js"></script>
+  <script src="js\movement.js"></script>
+  
+  <style>
+    /* Set height of the grid so .sidenav can be 100% (adjust if needed) */
+    .row.content {height: auto}
+    
+    /* Set gray background color and 100% height */
+    .sidenav {
+      background-color: #f1f1f1;
+      height: 100%;
+    }
+    
+    /* Set black background color, white text and some padding */
+    footer {
+      background-color: #982B4F;
+      color: white;
+      padding: auto;
+    }
+    header {
+      background-color: #B5E0FF;
+      color: white;
+      padding: auto;
+    }
+    
+    /* On small screens, set height to 'auto' for sidenav and grid */
+    @media screen and (max-width: 767px) {
+      .sidenav {
+        height: auto;
+        padding: 15px;
+      }
+      .row.content {height: auto;} 
+    }
+    
+    .axis path, .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }
+    
+    /*path { 
+    stroke: steelblue;
+    stroke-width: 2;
+    fill: none;
+    }*/
+    
+    .d3-tip {
+  line-height: 1;
+  font-weight: bold;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+  </style>
+</head>
+<body>
+    
+<!--header della pagina-->    
+<header class="container-fluid">
+    <img src="img/banner.jpg" alt="" style="width:1500px"/>
+</header>
+
+<div class="container-fluid">
+  <div class="row content">
+      
+      
+    <!--menù sulla sinistra della pagina-->
+    <div class="col-sm-2 sidenav">
+      <h4>Dashboard</h4>
+      <hr>
+      <h5>Select day to analyze</h5>
+      <br>
+      <ul class="nav nav-pills nav-stacked">
+        
+        <button id="friday" type="submit" class="btn btn-primary active byn-md" style="width:80px" onclick="friday()">Friday</button><br>
+        <button id="saturday" type="submit" class="btn btn-primary btn-md" style="width:80px" onclick="saturday()">Saturday</button><br>
+        <button id="sunday" type="submit" class="btn btn-primary btn-md" style="width:80px" onclick="sunday()">Sunday</button>
+        <hr>
+    
+        <h5>Select time interval</h5>
+        <br>
+        <li ><a id="time" href="#section2" data-toggle="modal" data-target="#time_modal">Time</a></li>
+        
+        <!-- Modal -->
+        <div class="modal fade" id="time_modal" role="dialog">
+            <div class="modal-dialog">
+    
+        <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Time Interval</h4>
+                    </div>
+                <div class="modal-body">
+                    <p>From</p>
+                    <ul class="nav nav-tabs" role="tablist">
+        
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="hour_from"> Hour <span class="caret"></span></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="#" onclick='document.getElementById("hour_from").innerHTML = "08"'>08</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_from").innerHTML = "09"'>09</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_from").innerHTML = "10"'>10</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_from").innerHTML = "11"'>11</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_from").innerHTML = "12"'>12</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_from").innerHTML = "13"'>13</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_from").innerHTML = "14"'>14</a></li>                     <!--selettore delle ore sul modal-->
+                                <li><a href="#" onclick='document.getElementById("hour_from").innerHTML = "15"'>15</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_from").innerHTML = "16"'>16</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_from").innerHTML = "17"'>17</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_from").innerHTML = "18"'>18</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_from").innerHTML = "19"'>19</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_from").innerHTML = "20"'>20</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_from").innerHTML = "21"'>21</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_from").innerHTML = "22"'>22</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_from").innerHTML = "23"'>23</a></li>                        
+                            </ul>
+                        </li>
+                        
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="min_from"> Min <span class="caret"></span></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="#" onclick='document.getElementById("min_from").innerHTML = "00"'>00</a></li>
+                                <li><a href="#" onclick='document.getElementById("min_from").innerHTML = "10"'>10</a></li>
+                                <li><a href="#" onclick='document.getElementById("min_from").innerHTML = "20"'>20</a></li>                     <!--selettore dei minuti sul modal-->
+                                <li><a href="#" onclick='document.getElementById("min_from").innerHTML = "30"'>30</a></li>
+                                <li><a href="#" onclick='document.getElementById("min_from").innerHTML = "40"'>40</a></li>
+                                <li><a href="#" onclick='document.getElementById("min_from").innerHTML = "50"'>50</a></li>               
+                            </ul>
+                        </li>
+                    </ul>
+                    <br>
+                    
+                    <p>To</p>
+                    <ul class="nav nav-tabs" role="tablist">
+        
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="hour_to"> Hour <span class="caret"></span></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="#" onclick='document.getElementById("hour_to").innerHTML = "08"'>08</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_to").innerHTML = "09"'>09</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_to").innerHTML = "10"'>10</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_to").innerHTML = "11"'>11</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_to").innerHTML = "12"'>12</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_to").innerHTML = "13"'>13</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_to").innerHTML = "14"'>14</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_to").innerHTML = "15"'>15</a></li>                     <!--selettore delle ore sul modal-->
+                                <li><a href="#" onclick='document.getElementById("hour_to").innerHTML = "16"'>16</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_to").innerHTML = "17"'>17</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_to").innerHTML = "18"'>18</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_to").innerHTML = "19"'>19</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_to").innerHTML = "20"'>20</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_to").innerHTML = "21"'>21</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_to").innerHTML = "22"'>22</a></li>
+                                <li><a href="#" onclick='document.getElementById("hour_to").innerHTML = "23"'>23</a></li>                        
+                            </ul>
+                        </li>
+                        
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="min_to"> Min <span class="caret"></span></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="#" onclick='document.getElementById("min_to").innerHTML = "00"'>00</a></li>
+                                <li><a href="#" onclick='document.getElementById("min_to").innerHTML = "10"'>10</a></li>
+                                <li><a href="#" onclick='document.getElementById("min_to").innerHTML = "20"'>20</a></li>                     <!--selettore dei minuti sul modal-->
+                                <li><a href="#" onclick='document.getElementById("min_to").innerHTML = "30"'>30</a></li>
+                                <li><a href="#" onclick='document.getElementById("min_to").innerHTML = "40"'>40</a></li>
+                                <li><a href="#" onclick='document.getElementById("min_to").innerHTML = "50"'>50</a></li>               
+                            </ul>
+                        </li>
+                    </ul>
+                    
+                </div>
+                    
+                <div class="modal-footer">
+                    <!--<h5> Attention: on Sunday we open at 10:00 </h5>-->
+                    <button type="button" class="btn btn-success" data-dismiss="modal" onclick="get_time()">Insert</button>
+                </div>
+             </div>
+      
+            </div>
+        </div>
+  
+        <!--<li><a href="#section3">od-matrix</a></li>-->
+        <hr>
+        <h5>Select kind of detection</h5>
+        <br>
+        <!--<button id="all" type="submit" class="btn btn-default active disabled" style="width:93px" onclick="">All</button><br>-->
+        <button id="movement" type="submit" class="btn btn-default disabled" style="width:93px" onclick="movement()">Movement</button><br>
+        <button id="check-in" type="submit" class="btn btn-default disabled" style="width:93px" onclick="check()">Check-in</button>
+        <button id="bar_chart" type="submit" class="btn btn-default disabled" style="width:93" onclick="bar_chart()">Bar chart</button>
+        <hr>
+        
+        <h5>Groups identification</h5>
+        <br>
+        <form method="post" name="form_component">
+            <div class="form-group">
+                <label for="component_from">From components:</label>
+                <input type="text" class="form-control" id="component_from" placeholder="Enter number of components" name="n_comp_from">
+            </div>
+            <div class="form-group">
+                <label for="component_to">To components:</label>
+                <input type="text" class="form-control" id="component_to" placeholder="Enter number of components" name="n_comp_to">
+                <input type="button" class="btn btn-primary disabled" id="validator" value="Submit" onClick="get_components()">
+                <!--<button type="submit" class="btn btn-primary" onClick="get_components()">Submit</button>-->
+            </div>
+            
+        </form>
+        <br>
+        <button id="groups" type="submit" class="btn btn-default disabled" style="width:93px" onclick="group()">Groups</button><br>
+      </ul><br>
+      
+    </div>
+    
+    
+    <!--area centrale della pagina-->
+    <div id='v_area' class="col-sm-9">
+        
+      <!--<h4><small>Maps</small></h4>-->
+      <hr>
+      
+      <script src="js\main.js"></script>
+      
+    </div>
+    
+    <div id='scatter_area' class="col-sm-9">
+        
+    
+    </div>
+    <br>
+        
+  </div>
+</div>
+      
+<!--footer della pagina-->
+<footer class="container-fluid">
+    <h6>by Emiliano Fuccio</h6>
+</footer>
+
+</body>
+</html>
